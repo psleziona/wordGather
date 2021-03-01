@@ -1,0 +1,15 @@
+@import 'variables';
+@import 'admin';
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.container {
+    width: 1440px;
+    margin: 0 auto;
+}

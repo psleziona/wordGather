@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="draw">
+        <button id="draw_word" class="btn">Draw word</button>
+        <input type="text" id="put_word">
+        <button id="check_input">Check</button>
+        <span id="counter_words">0</span> 
+    </div>
+
+
+
+    
+    <div class="test">
+        <!-- Losowe 10 wyrazow -->
+        <button id="generate_test">Generate test</button>
+        <div class="test_area">
+            <!-- created by js -->
+        </div>
+    </div>
+</div>
+{% endblock %}

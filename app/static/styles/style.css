@@ -1,0 +1,19 @@
+.words {
+  width: 50%;
+  float: left;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  width: 1440px;
+  margin: 0 auto;
+}
+
+/*# sourceMappingURL=style.css.map */

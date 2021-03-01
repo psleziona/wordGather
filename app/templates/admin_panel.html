@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<a href="{{ url_for('index') }}">Back</a>
+<div class="container">
+    <div class="words eng">
+        {% for word in data.english_words %}
+        <p>{{ word }} <span class="del_btn">Del</span></p>
+        {% endfor %}
+    </div>
+    <div class="words pol">
+        {% for word in data.polish_words %}
+        <p>{{ word }} <span class="del_btn">Del</span></p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
