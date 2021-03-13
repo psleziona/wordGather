@@ -30,6 +30,11 @@ const drawWord = (clear=true) => {
     };
 };
 
+const createTest = () => {
+    
+}
+
+
 drawBtn.addEventListener('click', () => {
     drawWord();
 });

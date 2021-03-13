@@ -13,6 +13,8 @@ def getTranslate(word):
     translations = getScrapWords(soup)
     if translations:
         putIntoDb(word, translations)
+        return True
+    return False
 
 
 def getScrapWords(bsObj):

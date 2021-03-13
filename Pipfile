@@ -9,6 +9,7 @@ flask-sqlalchemy = "*"
 psycopg2-binary = "*"
 beautifulsoup4 = "*"
 requests = "*"
+flask-login = "*"
 
 [dev-packages]
 
