@@ -1,9 +1,10 @@
-from flask import request, render_template, jsonify, redirect, url_for
+from flask import request, render_template, jsonify, redirect, url_for, Response
 from app import app, db
 from app.dictionary_scrap import getTranslate
 from app.models import EnglishWords, PolishWords, Users, WordsHandler
 from flask_login import login_user, current_user, login_required
-import random
+import random, json
+from app.learning_system import test_answer_generator
 
 @app.route('/')
 def index():
@@ -34,7 +35,7 @@ def login():
 
 
 @app.route('/word', methods = ['POST', 'GET', 'DELETE'])
-@login_required
+# @login_required
 def word():
     current_user = Users.query.get(1)
     if request.method == 'GET':
@@ -46,9 +47,20 @@ def word():
     elif request.method == 'POST':
         word = request.form.get('word')
         db_word = EnglishWords.query.filter_by(word=word).first()
+
+        a = Response()
+        a.headers.add('Access-Control-Allow-Origin', '*')
+        res_data = {'msg': ''}
+
+        # albo funkcja msg -> resObj with msg?
+
+        # res = jsonify(res='res')
+        # res.headers.add('Access-Control-Allow-Origin', '*')
         if db_word:
             if db_word in [x.word for x in current_user.words]:
-                return 'alert: Masz to'
+                res_data['msg'] = 'alert: masz to'
+                a.data = json.dumps(res_data)
+                return a
             else:
                 db.session.add(WordsHandler(word=db_word, user=current_user))
                 db.session.commit()
@@ -82,4 +94,31 @@ def words(count):
     data = [{'word': x.word, 'translates': [w.word for w in x.pol_translate]} for x in words]
     return jsonify(data)
     
-
+@app.route('/test', methods=['GET', 'POST'])
+def testa():
+    current_user = Users.query.get(1)
+    if request.method == 'GET':
+        w = random.choice(EnglishWords.query.all())
+        return {'word': w.word, 'answers': test_answer_generator(w)}
+    else:
+        '''
+        [
+            {
+                'word': word,
+                'right': bool
+            },
+            ...
+        ]
+        '''
+        lista_ass = []
+        data = json.loads(request.data)
+        for eng_word in data:
+            word = EnglishWords.query.filter_by(word=eng_word['word']).first()
+            right = eng_word['bool']
+            print(right)
+            as_obj = WordsHandler(word_id=word.id, user_id=current_user.id)
+            #increase counter, check if right, if so then right_counter increase, count progress
+            lista_ass.append(as_obj)
+        print(lista_ass)
+        db.session.commit()
+        return 'testy'

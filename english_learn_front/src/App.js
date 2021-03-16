@@ -1,7 +1,22 @@
 import logo from './logo.svg';
 import './App.css';
+import React, { useState, useEffect } from 'react';
+
 
 function App() {
+
+  const [data, setData] = useState({});
+
+  useEffect(() => {
+    fetch('/word').then(res => res.json()).then(data => {
+      setData(data)
+    })
+  }, []);
+
+  const d = () => {
+    returntt
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -15,9 +30,11 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          dupa
         </a>
       </header>
+      <div>
+      </div>
     </div>
   );
 }
