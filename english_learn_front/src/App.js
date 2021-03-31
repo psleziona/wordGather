@@ -13,9 +13,6 @@ function App() {
     })
   }, []);
 
-  const d = () => {
-    returntt
-  }
 
   return (
     <div className="App">

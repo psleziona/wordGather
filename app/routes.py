@@ -34,7 +34,7 @@ def login():
 
 
 
-@app.route('/word', methods = ['POST', 'GET', 'DELETE'])
+@app.route('/word', methods = ['POST', 'GET', 'DELETE', 'PUT'])
 # @login_required
 def word():
     current_user = Users.query.get(1)
@@ -48,19 +48,16 @@ def word():
         word = request.form.get('word')
         db_word = EnglishWords.query.filter_by(word=word).first()
 
-        a = Response()
-        a.headers.add('Access-Control-Allow-Origin', '*')
+        response_obj = Response()
+        response_obj.headers.add('Access-Control-Allow-Origin', '*')
         res_data = {'msg': ''}
-
         # albo funkcja msg -> resObj with msg?
 
-        # res = jsonify(res='res')
-        # res.headers.add('Access-Control-Allow-Origin', '*')
         if db_word:
             if db_word in [x.word for x in current_user.words]:
                 res_data['msg'] = 'alert: masz to'
-                a.data = json.dumps(res_data)
-                return a
+                response_obj.data = json.dumps(res_data)
+                return response_obj
             else:
                 db.session.add(WordsHandler(word=db_word, user=current_user))
                 db.session.commit()
@@ -72,19 +69,41 @@ def word():
                 return 'Added'
             else:
                 return 'Somfing wrong'
-    else:
+    elif request.method == 'DELETE':
         name = request.form.get('word')
         word = EnglishWords.query.filter_by(word=name).first()
         db.session.delete(word)
         db.session.commit()
         return 'deleted'
+    elif request.method == 'PUT':
+        '''
+         {'word': 'x', 'right': bool}
+    '''
+    
+        data = json.loads(request.data)
+        word = EnglishWords.query.filter_by(word=data['word']).first()
+        wh_obj = WordsHandler.query.filter_by(word_id=word.id, user_id=current_user.id).first()
+        wh_obj.show_counter += 1
+        if data['right']:
+            wh_obj.right_answers += 1
+        wh_obj.progress_eval()
+        return 'done'
 
 @app.route('/word/progress_filter/<float:progress>')
-@login_required
+# @login_required
 def progress_filter(progress):
     current_user = Users.query.get(1)
     word = random.choice([x.word for x in current_user.words if x.progress and x.progress <= progress]) # cannot choose from empty / default progress 0 and x.progress > 0?
     return {'word': word.word, 'translates': [x.word for x in word.pol_translate]}
+
+#funkcja do zwracania odpowiednich danych w zaleznosci od endpointu?
+# jeden endpoint do odbierania wynikow
+
+@app.route('/words')
+def all_words():
+    current_user = Users.query.get(1)
+    data = [{'word': x.word.word, 'translates': [w.word for w in x.word.pol_translate]} for x in current_user.words]
+    return jsonify(data)
 
 @app.route('/words/<int:count>')
 def words(count):
@@ -94,6 +113,17 @@ def words(count):
     data = [{'word': x.word, 'translates': [w.word for w in x.pol_translate]} for x in words]
     return jsonify(data)
     
+
+
+
+
+
+
+
+
+
+
+
 @app.route('/test', methods=['GET', 'POST'])
 def testa():
     current_user = Users.query.get(1)
