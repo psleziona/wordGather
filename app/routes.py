@@ -4,7 +4,7 @@ from app.dictionary_scrap import getTranslate
 from app.models import EnglishWords, PolishWords, Users, WordsHandler
 from flask_login import login_user, current_user, login_required
 import random, json
-from app.learning_system import test_answer_generator
+from app.learning_system import test_answer_generator, return_object_generator, update_db
 
 @app.route('/')
 def index():
@@ -79,7 +79,6 @@ def word():
         '''
          {'word': 'x', 'right': bool}
     '''
-    
         data = json.loads(request.data)
         word = EnglishWords.query.filter_by(word=data['word']).first()
         wh_obj = WordsHandler.query.filter_by(word_id=word.id, user_id=current_user.id).first()
@@ -99,11 +98,19 @@ def progress_filter(progress):
 #funkcja do zwracania odpowiednich danych w zaleznosci od endpointu?
 # jeden endpoint do odbierania wynikow
 
-@app.route('/words')
+@app.route('/words', methods=['GET', 'PUT'])
 def all_words():
-    current_user = Users.query.get(1)
-    data = [{'word': x.word.word, 'translates': [w.word for w in x.word.pol_translate]} for x in current_user.words]
-    return jsonify(data)
+    if request.method == 'GET':
+        current_user = Users.query.get(1)
+        data = [{'word': x.word.word, 'translates': [w.word for w in x.word.pol_translate]} for x in current_user.words]
+        return jsonify(data)
+    elif request.method == 'PUT':
+        data = json.loads(request.data)
+        for answer_info in data:
+            word = answer_info['word']
+            is_right = answer_info['right']
+            update_db(current_user, word, is_right) # lub data do funkcji, na update kazdej pozycji i na koniec jeden session commit?
+        return 'get it'
 
 @app.route('/words/<int:count>')
 def words(count):
@@ -113,16 +120,44 @@ def words(count):
     data = [{'word': x.word, 'translates': [w.word for w in x.pol_translate]} for x in words]
     return jsonify(data)
     
+@app.route('/words/progress_filter/<float:progress>')
+def words_progress(progress):
+    current_user = Users.query.get(1)
+    current_user_words = [x.word for x in current_user.words if x.progress and x.progress <= progress] #EnglishWordsObjects
+    data = [return_object_generator(x) for x in current_user_words]
+    return jsonify(data)
 
+'''
+Ujednolicony return, front bedzie zmienial?
 
+[
+    {
+        'english_word': 'x',
+        'right_answers': [...],
+        'false_answers': [false1, false2, false3]
+    },
+]
+-------------------------------------------------
+data z front
 
+[
+    'word': 'xxx',
+    'right': 'true/false'
+]
 
+--------------------------------------------------
+statsy?
 
+[
+    {
+        word: word,
+        show_counter: show_counter,
+        right: right,
 
-
-
-
-
+        ?w pozniejszym czasie waga dodana do progressu w zaleznosci od obecnego progressu, czestosci w czasie itp?
+    }
+]
+'''
 
 @app.route('/test', methods=['GET', 'POST'])
 def testa():
