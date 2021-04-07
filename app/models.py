@@ -14,7 +14,7 @@ class EnglishWords(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String(20))
     pol_translate = db.relationship(
-        'PolishWords', secondary=word_mean, backref='english_translate')
+        'PolishWords', secondary=word_mean, backref='english_translate', cascade='all, delete')
 
 
 class PolishWords(db.Model):

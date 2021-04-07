@@ -1,0 +1,16 @@
+.nav {
+    display: flex;
+    background: dimgrey;
+
+    &__links {
+        display: flex;
+        list-style: none;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    &__link {
+        text-decoration: none;
+        color: ghostwhite;
+    }
+}

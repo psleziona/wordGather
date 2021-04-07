@@ -1,39 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
-import React, { useState, useEffect } from 'react';
+import './App.scss';
+import React, { Component } from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Nav from './Nav';
+import Main from './Main';
+import QuickRound from './QuickRound';
+import TestMulti from './TestMulti';
 
+class App extends Component {
+  constructor() {
+    super();
+  }
 
-function App() {
-
-  const [data, setData] = useState({});
-
-  useEffect(() => {
-    fetch('/word').then(res => res.json()).then(data => {
-      setData(data)
-    })
-  }, []);
-
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          dupa
-        </a>
-      </header>
-      <div>
-      </div>
-    </div>
-  );
+  render() {
+    return (
+      <Router>
+        <div className='container'>
+          <Nav />
+          <Switch>
+            <Route path='/' exact component={Main} />
+            <Route path='/quick_round' component={QuickRound} />
+            <Route path='/test_multi' component={TestMulti} />
+          </Switch>
+        </div>
+      </Router>
+    )
+  }
 }
 
 export default App;

@@ -51,7 +51,7 @@ def word():
         response_obj = Response()
         response_obj.headers.add('Access-Control-Allow-Origin', '*')
         res_data = {'msg': ''}
-        # albo funkcja msg -> resObj with msg?
+        # albo funkcja msg -> resObj with msg?, status cody
 
         if db_word:
             if db_word in [x.word for x in current_user.words]:
@@ -69,8 +69,9 @@ def word():
                 return 'Added'
             else:
                 return 'Somfing wrong'
-    elif request.method == 'DELETE':
-        name = request.form.get('word')
+
+    elif request.method == 'DELETE': #calosc? danego uzytkownika -> WordsHandler tylko. Do ogarniecia
+        name = request.form.get('word') # lub id? wtedy id dolaczam do response
         word = EnglishWords.query.filter_by(word=name).first()
         db.session.delete(word)
         db.session.commit()
@@ -97,6 +98,7 @@ def progress_filter(progress):
 
 #funkcja do zwracania odpowiednich danych w zaleznosci od endpointu?
 # jeden endpoint do odbierania wynikow
+# odbior listy lepszy niz pojedyncze req
 
 @app.route('/words', methods=['GET', 'PUT'])
 def all_words():
@@ -114,10 +116,12 @@ def all_words():
 
 @app.route('/words/<int:count>')
 def words(count):
+    print(count)
     words = EnglishWords.query.all()
     random.shuffle(words)
     words = words[:count]
-    data = [{'word': x.word, 'translates': [w.word for w in x.pol_translate]} for x in words]
+    # data = [{'word': x.word, 'translates': [w.word for w in x.pol_translate]} for x in words]
+    data = [return_object_generator(x) for x in words]
     return jsonify(data)
     
 @app.route('/words/progress_filter/<float:progress>')
