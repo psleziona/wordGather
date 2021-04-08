@@ -1,0 +1,21 @@
+.test {
+
+    &__list {
+        display: flex;
+        justify-content: space-around;
+        list-style-type: none;
+        padding: 0;
+    }
+
+    &__item {
+        width: 100%;
+        border: 1px solid black;
+        cursor: pointer;
+        text-align: center;
+    }
+}
+
+.answered {
+    opacity: .5;
+    background-color: goldenrod;
+}

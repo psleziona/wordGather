@@ -1,4 +1,5 @@
 import { Component } from "react";
+import TestObject from './TestObject';
 
 class TestMulti extends Component {
     constructor() {
@@ -59,29 +60,3 @@ class TestMulti extends Component {
 }
 
 export default TestMulti;
-
-class TestObject extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    genAnswer = () => {
-        const rightAnswer = this.props.right_answers[Math.floor(Math.random() * this.props.right_answers.length)];
-        let answers = [...this.props.false_answers, rightAnswer];
-        answers = answers.sort(() => {
-            let a = Math.random() - 0.5;
-            console.log(a);
-            return a;
-        });
-        console.log(answers)
-    }
-
-    render() {
-        console.log(this.props)
-        return (
-            <div className='test_container'>
-                <button onClick={this.genAnswer}>Klik</button>
-            </div>
-        )
-    }
-}
