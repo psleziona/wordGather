@@ -1,4 +1,5 @@
 import { Component } from "react";
+import TestContainer from "./TestContainer";
 import TestObject from './TestObject';
 
 class TestMulti extends Component {
@@ -6,56 +7,57 @@ class TestMulti extends Component {
         super();
         this.state = {
             countValue: '5',
-            testArray: []
+            testArray: [],
+            isDataSend: false
         }
-    }
-
-    generateTest = () => {
-        
     }
 
     getData = count => {
         fetch(`/words/${count}`)
         .then(res => res.json())
         .then(data => {
-            this.setState(state => {
-                return {
-                    testArray: data
-                }
-            })
-        })
-    }
-
-    handleChange = e => {
-        this.setState(state => {
-            return {
-                countValue: e.target.value
-            }
+            this.setState({
+                testArray: data,
+                isDataSend: false
+            });
         });
     }
 
-    handleClick = e => {
+    handleClick = () => {
         this.getData(this.state.countValue);
+    }
+
+    handleChange = e => {
+        this.setState({
+            countValue: e.target.value
+        });
+    }
+
+    clearDataAfterUpdate = () => {
+        this.setState({
+            testArray: [],
+            isDataSend: true
+        });
     }
 
 
     render() {
-        const testEl = this.state.testArray.map((tObj, i) => {
-            const { english_word, false_answers, right_answers } = tObj;
-            return <TestObject key={i} english_word={english_word} false_answers={false_answers} right_answers={right_answers} />
-        });
-
+        if (this.state.testArray.length == 0) {        
         return (
             <div>
-                <select value={this.state.countValue} onChange={this.handleChange}>
+                {this.state.isDataSend?<p>Answer send</p>:null}
+                <p>Wybierz ilosc slowek</p>
+                <select onChange={this.handleChange}>
                     <option value='5'>5</option>
                     <option value='10'>10</option>
                     <option value='20'>20</option>
                 </select>
-                <button onClick={this.handleClick}>Pobierz</button>
-                {testEl}
+                <button onClick={this.handleClick}>Start</button>
             </div>
         )
+        } else {
+            return <TestContainer tests={this.state.testArray} handleSend={this.clearDataAfterUpdate} />
+        }
     }
 }
 

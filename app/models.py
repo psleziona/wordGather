@@ -33,7 +33,7 @@ class WordsHandler(db.Model):
 
     show_counter = db.Column(db.Integer, default=0)
     right_answers = db.Column(db.Integer, default=0)
-    progress = db.Column(db.Float)  # right guess / counter
+    progress = db.Column(db.Float, default=0)  # right guess / counter
 
     user = db.relationship('Users', backref='words', cascade='all, delete')
     word = db.relationship('EnglishWords', cascade='all, delete')

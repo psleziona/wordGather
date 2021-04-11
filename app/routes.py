@@ -100,18 +100,19 @@ def progress_filter(progress):
 # jeden endpoint do odbierania wynikow
 # odbior listy lepszy niz pojedyncze req
 
-@app.route('/words', methods=['GET', 'PUT'])
+@app.route('/words', methods=['GET', 'POST'])
 def all_words():
     if request.method == 'GET':
         current_user = Users.query.get(1)
         data = [{'word': x.word.word, 'translates': [w.word for w in x.word.pol_translate]} for x in current_user.words]
         return jsonify(data)
-    elif request.method == 'PUT':
+    elif request.method == 'POST':
         data = json.loads(request.data)
-        for answer_info in data:
-            word = answer_info['word']
-            is_right = answer_info['right']
-            update_db(current_user, word, is_right) # lub data do funkcji, na update kazdej pozycji i na koniec jeden session commit?
+        print(data)
+        # for answer_info in data:
+        #     word = answer_info['word']
+        #     is_right = answer_info['right']
+        #     update_db(current_user, word, is_right) # lub data do funkcji, na update kazdej pozycji i na koniec jeden session commit?
         return 'get it'
 
 @app.route('/words/<int:count>')

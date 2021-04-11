@@ -7,7 +7,9 @@ class Main extends Component {
 
     render() {
         return (
-            <p>ss</p>
+            <div>
+                <h2>Do uzupełnienia</h2>
+            </div>
         );
     }
 }
