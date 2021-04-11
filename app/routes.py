@@ -4,22 +4,8 @@ from app.dictionary_scrap import getTranslate
 from app.models import EnglishWords, PolishWords, Users, WordsHandler
 from flask_login import login_user, current_user, login_required
 import random, json
-from app.learning_system import test_answer_generator, return_object_generator, update_db
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/menagement', methods=['POST','GET'])
-def user_panel():
-    if request.method == 'GET':
-        eng_words = [x.word for x in EnglishWords.query.all()]
-        pol_words = [x.word for x in PolishWords.query.all()]
-        data = {
-            'english_words': eng_words,
-            'polish_words': pol_words
-        }
-        return render_template('admin_panel.html', data=data)
+from app.learning_system import return_object_generator, update_db
+from app.utils import gen_res
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -31,7 +17,6 @@ def login():
         if user is not None:
             login_user(user)
             return redirect(url_for('index'))
-
 
 
 @app.route('/word', methods = ['POST', 'GET', 'DELETE', 'PUT'])
@@ -48,27 +33,20 @@ def word():
         word = request.form.get('word')
         db_word = EnglishWords.query.filter_by(word=word).first()
 
-        response_obj = Response()
-        response_obj.headers.add('Access-Control-Allow-Origin', '*')
-        res_data = {'msg': ''}
-        # albo funkcja msg -> resObj with msg?, status cody
-
         if db_word:
             if db_word in [x.word for x in current_user.words]:
-                res_data['msg'] = 'alert: masz to'
-                response_obj.data = json.dumps(res_data)
-                return response_obj
+                return gen_res('Word in db'), 200
             else:
                 db.session.add(WordsHandler(word=db_word, user=current_user))
                 db.session.commit()
-                return 'Added'
+                return gen_res(), 201
         else:
             if getTranslate(word):
                 db.session.add(WordsHandler(word=EnglishWords.query.filter_by(word=word).first(), user=current_user))
                 db.session.commit()
-                return 'Added'
+                return gen_res, 201
             else:
-                return 'Somfing wrong'
+                return gen_res('Error'), 500
 
     elif request.method == 'DELETE': #calosc? danego uzytkownika -> WordsHandler tylko. Do ogarniecia
         name = request.form.get('word') # lub id? wtedy id dolaczam do response
@@ -76,52 +54,32 @@ def word():
         db.session.delete(word)
         db.session.commit()
         return 'deleted'
-    elif request.method == 'PUT':
-        '''
-         {'word': 'x', 'right': bool}
-    '''
-        data = json.loads(request.data)
-        word = EnglishWords.query.filter_by(word=data['word']).first()
-        wh_obj = WordsHandler.query.filter_by(word_id=word.id, user_id=current_user.id).first()
-        wh_obj.show_counter += 1
-        if data['right']:
-            wh_obj.right_answers += 1
-        wh_obj.progress_eval()
-        return 'done'
 
-@app.route('/word/progress_filter/<float:progress>')
-# @login_required
-def progress_filter(progress):
-    current_user = Users.query.get(1)
-    word = random.choice([x.word for x in current_user.words if x.progress and x.progress <= progress]) # cannot choose from empty / default progress 0 and x.progress > 0?
-    return {'word': word.word, 'translates': [x.word for x in word.pol_translate]}
-
-#funkcja do zwracania odpowiednich danych w zaleznosci od endpointu?
-# jeden endpoint do odbierania wynikow
-# odbior listy lepszy niz pojedyncze req
 
 @app.route('/words', methods=['GET', 'POST'])
+# @login_required
 def all_words():
+    current_user = Users.query.get(1)
     if request.method == 'GET':
-        current_user = Users.query.get(1)
-        data = [{'word': x.word.word, 'translates': [w.word for w in x.word.pol_translate]} for x in current_user.words]
+        data = [return_object_generator(x) for x in current_user.words]
         return jsonify(data)
     elif request.method == 'POST':
         data = json.loads(request.data)
-        print(data)
-        # for answer_info in data:
-        #     word = answer_info['word']
-        #     is_right = answer_info['right']
-        #     update_db(current_user, word, is_right) # lub data do funkcji, na update kazdej pozycji i na koniec jeden session commit?
-        return 'get it'
+        '''
+        [{word: false/true},...]
+        '''
+        for answer in data:
+            word = list(answer)[0]
+            is_right = answer[word]
+            update_db(current_user, word, is_right)
+        return gen_res('Success'), 200
+    
 
 @app.route('/words/<int:count>')
 def words(count):
-    print(count)
     words = EnglishWords.query.all()
     random.shuffle(words)
     words = words[:count]
-    # data = [{'word': x.word, 'translates': [w.word for w in x.pol_translate]} for x in words]
     data = [return_object_generator(x) for x in words]
     return jsonify(data)
     
@@ -131,64 +89,3 @@ def words_progress(progress):
     current_user_words = [x.word for x in current_user.words if x.progress and x.progress <= progress] #EnglishWordsObjects
     data = [return_object_generator(x) for x in current_user_words]
     return jsonify(data)
-
-'''
-Ujednolicony return, front bedzie zmienial?
-
-[
-    {
-        'english_word': 'x',
-        'right_answers': [...],
-        'false_answers': [false1, false2, false3]
-    },
-]
--------------------------------------------------
-data z front
-
-[
-    'word': 'xxx',
-    'right': 'true/false'
-]
-
---------------------------------------------------
-statsy?
-
-[
-    {
-        word: word,
-        show_counter: show_counter,
-        right: right,
-
-        ?w pozniejszym czasie waga dodana do progressu w zaleznosci od obecnego progressu, czestosci w czasie itp?
-    }
-]
-'''
-
-@app.route('/test', methods=['GET', 'POST'])
-def testa():
-    current_user = Users.query.get(1)
-    if request.method == 'GET':
-        w = random.choice(EnglishWords.query.all())
-        return {'word': w.word, 'answers': test_answer_generator(w)}
-    else:
-        '''
-        [
-            {
-                'word': word,
-                'right': bool
-            },
-            ...
-        ]
-        '''
-        lista_ass = []
-        data = json.loads(request.data)
-        for eng_word in data:
-            word = EnglishWords.query.filter_by(word=eng_word['word']).first()
-            right = eng_word['bool']
-            print(right)
-            as_obj = WordsHandler(word_id=word.id, user_id=current_user.id)
-            #increase counter, check if right, if so then right_counter increase, count progress
-            lista_ass.append(as_obj)
-        print(lista_ass)
-        db.session.commit()
-        return 'testy'
