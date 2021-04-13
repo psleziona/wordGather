@@ -20,6 +20,13 @@ class Nav extends Component {
                     <Link className='nav__anchor' to='/test_multi'>
                         <li className='nav__link'>Multi test</li>
                     </Link>
+                    <Link className='nav__anchor' to='/stats'>
+                        <li className='nav__link'>Stats</li>
+                    </Link>
+                    <Link className='nav__anchor' to='/login'>
+                        <li className='nav__link'>Login</li>
+                    </Link>
+                    
                 </ul>
             </nav>
         )

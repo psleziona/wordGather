@@ -16,7 +16,7 @@ class QuickRound extends Component {
     }
 
     getWord = () => {
-        if (this.state.showAnswer) {
+        if (this.showAnswer) {
             this.setState(prevState => {
                 return {
                     answers: [...prevState.answers, { [this.state.word]: false }]
@@ -43,7 +43,6 @@ class QuickRound extends Component {
         if (e.key == 'Enter') {
             const answer = e.target.value;
             if (this.handleAnswer(answer)) {
-
                 e.target.value = '';
                 this.getWord()
             } else {
@@ -78,37 +77,40 @@ class QuickRound extends Component {
         }
     }
 
+    handleNext = () => {
+        this.setState(prevState => {
+            return {
+                answers: [...prevState.answers, { [this.state.word]: false }]
+            }
+        });
+        this.getWord();
+    }
+
     componentDidMount() {
         this.getWord();
     }
 
-    sendData = () => {
-        fetch('/words', {
-            method: 'POST',
-            body: JSON.stringify(this.state.answers)
+    finishRound = () => {
+        const stats = {
+            answers: this.state.answers,
+            right: this.state.rightCounter
+        }
+        // this.props.handleTest(this.state.answers, this.state.rightCounter);
+        this.setState({
+            answers: []
         })
-            .then(res => {
-                if (res.status === 200) {
-                    this.setState({
-                        rightCounter: 0,
-                        wordCounter: 0,
-                        answers: []
-                    })
-                }
-            })
-            .then(() => {
-                this.getWord();
-            })
+        this.props.handleTest(stats);
     }
 
     componentWillUnmount() {
-        this.sendData();
-    }
+        this.finishRound();
+    }   
 
     render() {
         return (
             <div>
-                <button onClick={this.sendData}>Update status on server</button>
+                <button onClick={this.finishRound}>Finish</button>
+                <button onClick={this.handleNext}>Next</button>
                 <ul>
                     <li>{this.state.word}</li>
                     <li>Total words: {this.state.wordCounter}</li>
@@ -120,7 +122,6 @@ class QuickRound extends Component {
                 </label>
                 {this.state.showAnswerBtn ?
                     <button onClick={() => { this.setState({ showAnswer: true }) }}>Pokaz znaczenia</button> : null}
-                {this.state.showAnswer ? <button onClick={this.getWord}>Next</button> : null}
                 {this.state.showAnswer &&
                     <ul>
                         {this.state.translates.map((elem, i) => {

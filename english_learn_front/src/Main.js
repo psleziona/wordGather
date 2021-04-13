@@ -8,7 +8,7 @@ class Main extends Component {
     render() {
         return (
             <div>
-                <h2>Do uzupełnienia</h2>
+                <h2>Witaj</h2>
             </div>
         );
     }

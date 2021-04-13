@@ -5,6 +5,7 @@ from flask_login import UserMixin
 def load_user(id):
     return Users.query.get(id)
 
+
 word_mean = db.Table('word_translate',
                      db.Column('eng_id', db.Integer, db.ForeignKey('english_words.id')),
                      db.Column('pol_id', db.Integer, db.ForeignKey('polish_words.id')))

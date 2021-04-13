@@ -11,9 +11,14 @@ def return_object_generator(eng_word_obj):
 
 def update_db(user, word, right):
     word_obj = EnglishWords.query.filter_by(word=word).first()
-    wo_obj = WordsHandler.query.filter_by(word_id=word_obj.id, user_id=user.id).first()
-    wo_obj.show_counter += 1
+    wh_obj = WordsHandler.query.filter_by(word_id=word_obj.id, user_id=user.id).first()
+    wh_obj.show_counter += 1
     if right:
-        wo_obj.right_answers += 1
-    wo_obj.progress_eval()
+        wh_obj.right_answers += 1
+    wh_obj.progress_eval()
     db.session.commit()
+
+
+def gen_stats_object(eng_word_obj, user):
+    wh_obj = WordsHandler.query.filter_by(word_id=eng_word_obj.id, user_id=user.id).first()
+    return {'word': eng_word_obj.word, 'progress': wh_obj.progress, 'counter': wh_obj.show_counter}
