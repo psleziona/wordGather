@@ -10,6 +10,7 @@ psycopg2-binary = "*"
 beautifulsoup4 = "*"
 requests = "*"
 flask-login = "*"
+gunicorn = "*"
 
 [dev-packages]
 
