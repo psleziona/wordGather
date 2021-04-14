@@ -29,8 +29,9 @@ def register():
 
 
 @app.route('/word', methods = ['POST', 'GET', 'DELETE', 'PUT'])
-@login_required
+# @login_required
 def word():
+    current_user = Users.query.get(1)
     if request.method == 'GET':
         word = random.choice([x.word for x in current_user.words]) # losowy obiekt EnglishWord, x - WordsHandler obiekt
         pol_meaning = [x.word for x in word.pol_translate] # lista znaczen
