@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 login = LoginManager(app)
-CORS(app)
+cors = CORS(app, resources='localhost')
 
 
 from app import routes

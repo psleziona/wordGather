@@ -13,10 +13,11 @@ class StatsPage extends Component {
         fetch('https://word-gather.herokuapp.com/words/stats', {
             credentials:'include'
         })
-        .then(res => res.json())
-        .then(data => this.setState({
-            stats: data
-        }))
+        .then(res => console.log(res))
+        // .then(res => res.json())
+        // .then(data => this.setState({
+        //     stats: data
+        // }))
     }
 
     componentDidMount() {
