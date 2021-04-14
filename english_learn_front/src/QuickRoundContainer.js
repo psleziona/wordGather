@@ -31,7 +31,7 @@ class QuickRoundContainer extends Component {
     }
 
     handleUpdateDb = stats => {
-        fetch('/words', {
+        fetch('https://word-gather.herokuapp.com//words', {
             method: 'POST',
             body: JSON.stringify(stats)
         })

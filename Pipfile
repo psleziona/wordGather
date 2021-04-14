@@ -11,6 +11,7 @@ beautifulsoup4 = "*"
 requests = "*"
 flask-login = "*"
 gunicorn = "*"
+flask-cors = "*"
 
 [dev-packages]
 

@@ -13,7 +13,7 @@ class TestMulti extends Component {
     }
 
     getData = count => {
-        fetch(`/words/${count}`)
+        fetch(`https://word-gather.herokuapp.com//words/${count}`)
         .then(res => res.json())
         .then(data => {
             this.setState({

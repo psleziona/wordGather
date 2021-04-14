@@ -10,7 +10,7 @@ class StatsPage extends Component {
     }
 
     getstats = () => {
-        fetch('/words/stats')
+        fetch('https://word-gather.herokuapp.com//words/stats')
         .then(res => res.json())
         .then(data => this.setState({
             stats: data
