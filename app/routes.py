@@ -102,7 +102,6 @@ def words_progress(progress):
     return jsonify(data)
 
 @app.route('/words/stats')
-@cross_origin(support_credentials=True)
 @login_required
 def words_stats():
     words = current_user.words
