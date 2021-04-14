@@ -69,7 +69,7 @@ def word():
 @login_required
 def all_words():
     if request.method == 'GET':
-        data = [return_object_generator(x) for x in current_user.words]
+        data = [return_object_generator(x.word) for x in current_user.words]
         return jsonify(data)
     elif request.method == 'POST':
         data = json.loads(request.data)
