@@ -91,19 +91,12 @@ class QuickRound extends Component {
     }
 
     finishRound = () => {
-        const stats = {
-            answers: this.state.answers,
-            right: this.state.rightCounter
-        }
-        // this.props.handleTest(this.state.answers, this.state.rightCounter);
-        this.setState({
-            answers: []
-        })
-        this.props.handleTest(stats);
+        this.props.handleTest();
     }
 
     componentWillUnmount() {
-        this.finishRound();
+        const answers = this.state.answers
+        this.props.gatherData(answers);
     }   
 
     render() {

@@ -26,8 +26,8 @@ class StatsPage extends Component {
         return (
             <div>
                 {this.state.stats && 
-                this.state.stats.map(elem => {
-                    return <StatsContainer word={elem.word} counter={elem.counter} progress={elem.progress} />
+                this.state.stats.map((elem, i) => {
+                    return <StatsContainer key={i} word={elem.word} counter={elem.counter} progress={elem.progress} />
                 })
                 }
             </div>
