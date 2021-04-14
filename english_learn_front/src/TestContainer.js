@@ -48,7 +48,7 @@ class TestContainer extends Component {
     }
 
     updateStatus = () => {
-        fetch('https://word-gather.herokuapp.com//words', {
+        fetch('https://word-gather.herokuapp.com/words', {
             method: 'POST',
             body: JSON.stringify(this.state.answers)
         })

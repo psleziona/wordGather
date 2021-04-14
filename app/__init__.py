@@ -10,4 +10,5 @@ db = SQLAlchemy(app)
 login = LoginManager(app)
 CORS(app)
 
+
 from app import routes

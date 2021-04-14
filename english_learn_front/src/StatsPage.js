@@ -10,7 +10,9 @@ class StatsPage extends Component {
     }
 
     getstats = () => {
-        fetch('https://word-gather.herokuapp.com//words/stats')
+        fetch('https://word-gather.herokuapp.com/words/stats', {
+            credentials:'include'
+        })
         .then(res => res.json())
         .then(data => this.setState({
             stats: data
@@ -22,7 +24,6 @@ class StatsPage extends Component {
     }
 
     render() {
-        console.log(this.state)
         return (
             <div>
                 {this.state.stats && 

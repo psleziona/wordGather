@@ -1,4 +1,5 @@
 from flask import request, render_template, jsonify, redirect, url_for, Response, session
+from flask_cors import cross_origin
 from app import app, db
 from app.dictionary_scrap import getTranslate
 from app.models import EnglishWords, PolishWords, Users, WordsHandler
@@ -101,6 +102,7 @@ def words_progress(progress):
     return jsonify(data)
 
 @app.route('/words/stats')
+@cross_origin(support_credentials=True)
 @login_required
 def words_stats():
     words = current_user.words
