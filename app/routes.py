@@ -53,7 +53,7 @@ def word():
             if getTranslate(word):
                 db.session.add(WordsHandler(word=EnglishWords.query.filter_by(word=word).first(), user=current_user))
                 db.session.commit()
-                return gen_res, 201
+                return gen_res(), 201
             else:
                 return gen_res('Error'), 500
 
