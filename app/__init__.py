@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 login = LoginManager(app)
-cors = CORS(app, origins='http://localhost:8000', supports_credentials=True)
+cors = CORS(app, origins=['http://localhost:8000', 'https://psleziona.github.io'], supports_credentials=True)
 
 
 from app import routes
