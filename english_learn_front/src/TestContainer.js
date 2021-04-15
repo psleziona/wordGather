@@ -51,7 +51,8 @@ class TestContainer extends Component {
         fetch('https://word-gather.herokuapp.com/words', {
             method: 'POST',
             body: JSON.stringify(this.state.answers),
-            credentials: 'include'
+            credentials: 'include',
+            mode: 'cors'
         })
             .then(res => {
                 if (res.status == 200) {

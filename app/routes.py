@@ -63,12 +63,13 @@ def all_words():
         data = [return_object_generator(x.word) for x in current_user.words]
         return jsonify(data)
     elif request.method == 'POST':
+        res = make_response()
         data = json.loads(request.data)
         for answer in data:
             word = list(answer)[0]
             is_right = answer[word]
             update_db(current_user, word, is_right)
-        return gen_res('Success'), 200
+        return res
     
 
 @app.route('/words/<int:count>')
