@@ -7,21 +7,25 @@ from flask_login import login_user, current_user, login_required, logout_user
 import random, json
 from app.learning_system import return_object_generator, update_db, gen_stats_object
 from app.utils import gen_res
+from flask.sessions import SecureCookieSessionInterface
 
+session_cookie = SecureCookieSessionInterface()
 
 
 @app.route('/login', methods=['POST'])
 def login():
     name = request.form.get('name')
     user = Users.query.filter_by(username=name).first()
+    res = make_response()
     if user is not None:
         login_user(user)
-    res = make_response()
-    res.set_cookie('session', current_user['session'])
+    s = session_cookie.get_signing_serializer(app)
+    cookie = s.dumps(dict(session))
+    res.headers.add("Set-Cookie", f"session={cookie}; Secure; HttpOnly; SameSite=None; Path=/;")
     return res
 
 @app.route('/logout')
-def logout_user():
+def logout():
     logout_user()
     return Response()
 
