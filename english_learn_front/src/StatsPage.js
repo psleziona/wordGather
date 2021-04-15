@@ -11,8 +11,7 @@ class StatsPage extends Component {
 
     getstats = () => {
         fetch('https://word-gather.herokuapp.com/words/stats', {
-            credentials:'include',
-            mode: 'cors'
+            credentials:'include'
         })
         .then(res => console.log(res))
         // .then(res => res.json())
