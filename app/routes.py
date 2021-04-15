@@ -106,8 +106,5 @@ def words_progress(progress):
 def words_stats():
     words = current_user.words
     data = [gen_stats_object(word.word, current_user) for word in words]
-    r = Response()
-    r.headers.add('Access-Control-Allow-Origin', 'http://localhost/')
-    r.data = jsonify(data)
-    # return jsonify(data)
+    return jsonify(data)
     return r
