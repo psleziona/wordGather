@@ -1,13 +1,11 @@
-from flask import request, render_template, jsonify, redirect, url_for, Response, session, make_response
-from flask_cors import cross_origin
-from app import app, db
-from app.dictionary_scrap import getTranslate
-from app.models import EnglishWords, PolishWords, Users, WordsHandler
-from flask_login import login_user, current_user, login_required, logout_user
 import random, json
-from app.learning_system import return_object_generator, update_db, gen_stats_object
-from app.utils import gen_res
+from app import app, db
+from flask import request, render_template, jsonify, redirect, url_for, Response, session, make_response
+from flask_login import login_user, current_user, login_required, logout_user
 from flask.sessions import SecureCookieSessionInterface
+from app.models import EnglishWords, PolishWords, Users, WordsHandler
+from app.learning_system import return_object_generator, update_db, gen_stats_object
+from app.utils import gen_res, db_add_word
 
 session_cookie = SecureCookieSessionInterface()
 
@@ -27,7 +25,8 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return Response()
+    res = make_response()
+    return res
 
 
 @app.route('/register')
@@ -36,9 +35,8 @@ def register():
 
 
 @app.route('/word', methods = ['POST', 'GET', 'DELETE', 'PUT'])
-# @login_required
+@login_required
 def word():
-    current_user = Users.query.get(1)
     if request.method == 'GET':
         word = random.choice([x.word for x in current_user.words]) # losowy obiekt EnglishWord, x - WordsHandler obiekt
         pol_meaning = [x.word for x in word.pol_translate] # lista znaczen
@@ -47,22 +45,8 @@ def word():
 
     elif request.method == 'POST':
         word = request.form.get('word')
-        db_word = EnglishWords.query.filter_by(word=word).first()
-
-        if db_word:
-            if db_word in [x.word for x in current_user.words]:
-                return gen_res('Word in db'), 200
-            else:
-                db.session.add(WordsHandler(word=db_word, user=current_user))
-                db.session.commit()
-                return gen_res(), 201
-        else:
-            if getTranslate(word):
-                db.session.add(WordsHandler(word=EnglishWords.query.filter_by(word=word).first(), user=current_user))
-                db.session.commit()
-                return gen_res(), 201
-            else:
-                return gen_res('Error'), 500
+        res, code = db_add_word(word, current_user)
+        return res, code
 
     elif request.method == 'DELETE': #calosc? danego uzytkownika -> WordsHandler tylko. Do ogarniecia
         name = request.form.get('word') # lub id? wtedy id dolaczam do response
@@ -80,10 +64,6 @@ def all_words():
         return jsonify(data)
     elif request.method == 'POST':
         data = json.loads(request.data)
-        print(data)
-        '''
-        [{word: false/true},...]
-        '''
         for answer in data:
             word = list(answer)[0]
             is_right = answer[word]
@@ -113,4 +93,3 @@ def words_stats():
     words = current_user.words
     data = [gen_stats_object(word.word, current_user) for word in words]
     return jsonify(data)
-    return r

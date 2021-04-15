@@ -1,6 +1,5 @@
 import { Component } from "react";
 import TestContainer from "./TestContainer";
-import TestObject from './TestObject';
 
 class TestMulti extends Component {
     constructor() {
@@ -13,7 +12,9 @@ class TestMulti extends Component {
     }
 
     getData = count => {
-        fetch(`https://word-gather.herokuapp.com/words/${count}`)
+        fetch(`https://word-gather.herokuapp.com/words/${count}`, {
+            credentials: 'include'
+        })
         .then(res => res.json())
         .then(data => {
             this.setState({

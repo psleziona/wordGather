@@ -34,7 +34,8 @@ class QuickRoundContainer extends Component {
         fetch('https://word-gather.herokuapp.com/words', {
             method: 'POST',
             mode: 'cors',
-            body: JSON.stringify(stats)
+            body: JSON.stringify(stats),
+            credentials: 'include'
         })
         .then(res => console.log(res))
     }

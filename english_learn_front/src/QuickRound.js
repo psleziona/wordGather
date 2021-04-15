@@ -23,7 +23,9 @@ class QuickRound extends Component {
                 }
             });
         }
-        fetch('https://word-gather.herokuapp.com/word')
+        fetch('https://word-gather.herokuapp.com/word', {
+            credentials: 'include'
+        })
             .then(res => res.json())
             .then(data => {
                 this.setState(prevState => {
