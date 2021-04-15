@@ -1,4 +1,4 @@
-from flask import request, render_template, jsonify, redirect, url_for, Response, session
+from flask import request, render_template, jsonify, redirect, url_for, Response, session, make_response
 from flask_cors import cross_origin
 from app import app, db
 from app.dictionary_scrap import getTranslate
@@ -16,7 +16,9 @@ def login():
     user = Users.query.filter_by(username=name).first()
     if user is not None:
         login_user(user)
-    return Response()
+    res = make_response()
+    res.set_cookie('session', current_user['session'])
+    return res
 
 @app.route('/logout')
 def logout_user():
