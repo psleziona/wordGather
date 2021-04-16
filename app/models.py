@@ -26,6 +26,10 @@ class PolishWords(db.Model):
 class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
+    api_key = db.Column(db.String(20))
+
+    def gen_api_key(self):
+        return 'api'
 
 
 class WordsHandler(db.Model):

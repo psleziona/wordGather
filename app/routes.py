@@ -3,6 +3,7 @@ from app import app, db
 from flask import request, render_template, jsonify, redirect, url_for, Response, session, make_response
 from flask_login import login_user, current_user, login_required, logout_user
 from flask.sessions import SecureCookieSessionInterface
+from flask_cors import cross_origin
 from app.models import EnglishWords, PolishWords, Users, WordsHandler
 from app.learning_system import return_object_generator, update_db, gen_stats_object
 from app.utils import gen_res, db_add_word
@@ -34,7 +35,7 @@ def register():
     return 'Work in progress'
 
 
-@app.route('/word', methods = ['POST', 'GET', 'DELETE', 'PUT'])
+@app.route('/word', methods = ['GET', 'DELETE'])
 @login_required
 def word():
     if request.method == 'GET':
@@ -42,18 +43,25 @@ def word():
         pol_meaning = [x.word for x in word.pol_translate] # lista znaczen
         word = word.word
         return {'word': word, 'meaning': pol_meaning}
-
-    elif request.method == 'POST':
-        word = request.form.get('word')
-        res, code = db_add_word(word, current_user)
-        return res, code
-
-    elif request.method == 'DELETE': #calosc? danego uzytkownika -> WordsHandler tylko. Do ogarniecia
-        name = request.form.get('word') # lub id? wtedy id dolaczam do response
-        word = EnglishWords.query.filter_by(word=name).first()
+    # elif request.method == 'POST':
+    #     word = request.form.get('word')
+    #     res, code = db_add_word(word, current_user)
+    #     return res, code
+    elif request.method == 'DELETE': 
+        name = request.form.get('word') 
+        word = WordsHandler.query.filter_by(word_id=word, user_id=current_user.id).first()
         db.session.delete(word)
         db.session.commit()
         return 'deleted'
+
+
+@app.route('/<string:api_key>/word', methods=['POST'])
+@cross_origin(origins='*')
+def add_word(api_key):
+    word = request.form.get('word')
+    user = Users.query.filter_by(api_key=api_key).first()
+    res, code = db_add_word(word, user)
+    return res, code
 
 
 @app.route('/words', methods=['GET', 'POST'])
