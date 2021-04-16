@@ -1,12 +1,12 @@
-import random, json
+import random, json, jwt, datetime
 from app import app, db
-from flask import request, render_template, jsonify, redirect, url_for, Response, session, make_response
+from flask import request, jsonify, url_for, make_response, redirect
 from flask_login import login_user, current_user, login_required, logout_user
 from flask.sessions import SecureCookieSessionInterface
 from flask_cors import cross_origin
 from app.models import EnglishWords, PolishWords, Users, WordsHandler
 from app.learning_system import return_object_generator, update_db, gen_stats_object
-from app.utils import gen_res, db_add_word
+from app.utils import db_add_word, send_auth_msg
 
 session_cookie = SecureCookieSessionInterface()
 
@@ -30,9 +30,39 @@ def logout():
     return res
 
 
-@app.route('/register')
+@app.route('/register', methods=['POST'])
 def register():
-    return 'Work in progress'
+    username = request.form.get('username')
+    email = request.form.get('e-mail')
+    password = request.form.get('password')
+    if Users.query.filter_by(username=username).first() != None \
+        or Users.query.filter_by(email=email).first() !=None:
+        return 'already in', 409
+    password_hash = Users.gen_password(password)
+    api_key = Users.gen_api_key()
+    user = Users(username=username, password_hash=password_hash, email=email, api_key=api_key)
+    db.session.add(user)
+    db.session.commit()
+    send_auth_msg(auth_token, email)
+    return 'git', 200
+
+@app.route('/auth/<token>')
+def auth(token):
+    try:
+        data = jwt.decode(token, 'jajeczko', 'HS256')
+        user = data['username']
+        timestamp = data['expired']
+        current_time = datetime.datetime.now()
+        if datetime.datetime.fromtimestamp(timestamp) < current_time:
+            user = Users.query.filter_by(username=user).first()
+            user.confirm_user()
+            db.session.commit()
+            return redirect('https://psleziona.github.io/login')
+        else:
+            #link wygasl, wygerenruj nowy
+            return 'niegit', 404
+    except:
+        return redirect('https://psleziona.github.io/404')
 
 
 @app.route('/word', methods = ['GET', 'DELETE'])
@@ -43,10 +73,6 @@ def word():
         pol_meaning = [x.word for x in word.pol_translate] # lista znaczen
         word = word.word
         return {'word': word, 'meaning': pol_meaning}
-    # elif request.method == 'POST':
-    #     word = request.form.get('word')
-    #     res, code = db_add_word(word, current_user)
-    #     return res, code
     elif request.method == 'DELETE': 
         name = request.form.get('word') 
         word = WordsHandler.query.filter_by(word_id=word, user_id=current_user.id).first()
@@ -102,3 +128,13 @@ def words_stats():
     words = current_user.words
     data = [gen_stats_object(word.word, current_user) for word in words]
     return jsonify(data)
+
+@app.route('/user')
+@login_required
+def user_page():
+    words = current_user.words
+    stats = [gen_stats_object(word.word, current_user) for word in words]
+    api = current_user.api_key
+    username = current_user.username
+    data = {'stats': stats, 'username': username, 'api-key': api}
+    return data

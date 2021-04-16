@@ -12,6 +12,8 @@ requests = "*"
 flask-login = "*"
 gunicorn = "*"
 flask-cors = "*"
+flask-mail = "*"
+pyjwt = "*"
 
 [dev-packages]
 

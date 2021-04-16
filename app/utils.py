@@ -1,29 +1,37 @@
 import json
-from flask import Response
-from app import db
+from flask import make_response, url_for
+from flask_mail import Message
+from app import db, mail
 from app.models import EnglishWords, Users, WordsHandler
 from app.dictionary_scrap import getTranslate
 
-def gen_res(msg=None):
-    res = Response()
-    res.headers.add('Access-Control-Allow-Origin', '*')
-    if msg:
-        res.data = json.dumps({'msg': msg})
-    return res
 
 def db_add_word(word, user):
     db_word = EnglishWords.query.filter_by(word=word).first()
+    res = make_response()
     if db_word:
         if db_word in [x.word for x in user.words]:
-            return gen_res('Word in db'), 200
+            return res, 200
         else:
             db.session.add(WordsHandler(word=db_word, user=user))
             db.session.commit()
-            return gen_res(), 201
+            return res, 201
     else:
         if getTranslate(word):
             db.session.add(WordsHandler(word=EnglishWords.query.filter_by(word=word).first(), user=user))
             db.session.commit()
-            return gen_res(), 201
+            return res, 201
         else:
-            return gen_res('Error'), 500
+            return res, 500
+
+
+def send_auth_msg(token, user_mail):
+    url = url_for('auth', token=token)
+    msg = Message(
+        subject='User confirm message',
+        body=f'Here is your activate url if href doesn\'t work copy and past in browser url field {url}',
+        html=f'<p>To confirm click</p><a href={url}>Confirm link</a>',
+        recipients=[user_mail],
+        sender='admin@example.com'
+    )
+    mail.send(msg)
