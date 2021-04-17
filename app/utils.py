@@ -36,3 +36,4 @@ def send_auth_msg(token, user_mail):
         sender='admin@example.com'
     )
     mail.send(msg)
+    return True

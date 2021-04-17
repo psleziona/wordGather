@@ -1,4 +1,7 @@
-import random, json, jwt, datetime
+import random
+import json
+import jwt
+import datetime
 from app import app, db
 from flask import request, jsonify, url_for, make_response, redirect, session
 from flask_login import login_user, current_user, login_required, logout_user
@@ -21,10 +24,11 @@ def login():
         login_user(user)
         s = session_cookie.get_signing_serializer(app)
         cookie = s.dumps(dict(session))
-        res.headers.add("Set-Cookie", f"session={cookie}; Secure; HttpOnly; SameSite=None; Path=/;")
+        res.headers.add(
+            "Set-Cookie", f"session={cookie}; Secure; HttpOnly; SameSite=None; Path=/;")
         return res, 200
     return res, 404
-    
+
 
 @app.route('/logout')
 def logout():
@@ -39,16 +43,19 @@ def register():
     email = request.form.get('e-mail')
     password = request.form.get('password')
     if Users.query.filter_by(username=username).first() != None \
-        or Users.query.filter_by(email=email).first() !=None:
+            or Users.query.filter_by(email=email).first() != None:
         return 'already in', 409
     password_hash = Users.gen_password(password)
     api_key = Users.gen_api_key()
-    user = Users(username=username, password_hash=password_hash, email=email, api_key=api_key)
-    db.session.add(user)
-    db.session.commit()
+    user = Users(username=username, password_hash=password_hash,
+                 email=email, api_key=api_key)
     auth_token = user.gen_auth_token()
-    send_auth_msg(auth_token, email)
-    return 'git', 200
+    if send_auth_msg(auth_token, email):
+        db.session.add(user)
+        db.session.commit()
+        return 'git', 200
+    return 'niegit', 500
+
 
 @app.route('/auth/<token>')
 def auth(token):
@@ -63,23 +70,25 @@ def auth(token):
             db.session.commit()
             return redirect('https://psleziona.github.io/login')
         else:
-            #link wygasl, wygerenruj nowy
+            # link wygasl, wygerenruj nowy
             return 'niegit', 404
     except:
         return redirect('https://psleziona.github.io/404')
 
 
-@app.route('/word', methods = ['GET', 'DELETE'])
+@app.route('/word', methods=['GET', 'DELETE'])
 @login_required
 def word():
     if request.method == 'GET':
-        word = random.choice([x.word for x in current_user.words]) # losowy obiekt EnglishWord, x - WordsHandler obiekt
-        pol_meaning = [x.word for x in word.pol_translate] # lista znaczen
+        # losowy obiekt EnglishWord, x - WordsHandler obiekt
+        word = random.choice([x.word for x in current_user.words])
+        pol_meaning = [x.word for x in word.pol_translate]  # lista znaczen
         word = word.word
         return {'word': word, 'meaning': pol_meaning}
-    elif request.method == 'DELETE': 
-        name = request.form.get('word') 
-        word = WordsHandler.query.filter_by(word_id=word, user_id=current_user.id).first()
+    elif request.method == 'DELETE':
+        name = request.form.get('word')
+        word = WordsHandler.query.filter_by(
+            word_id=word, user_id=current_user.id).first()
         db.session.delete(word)
         db.session.commit()
         return 'deleted'
@@ -108,30 +117,26 @@ def all_words():
             is_right = answer[word]
             update_db(current_user, word, is_right)
         return res
-    
+
 
 @app.route('/words/<int:count>')
 @login_required
 def words(count):
-    words = EnglishWords.query.all()
+    words = [x.word for x in current_user.words]
     random.shuffle(words)
     words = words[:count]
     data = [return_object_generator(x) for x in words]
     return jsonify(data)
-    
+
+
 @app.route('/words/progress/<float:progress>')
 @login_required
 def words_progress(progress):
-    current_user_words = [x.word for x in current_user.words if x.progress and x.progress <= progress]
+    current_user_words = [
+        x.word for x in current_user.words if x.progress and x.progress <= progress]
     data = [return_object_generator(x) for x in current_user_words]
     return jsonify(data)
 
-@app.route('/words/stats')
-@login_required
-def words_stats():
-    words = current_user.words
-    data = [gen_stats_object(word.word, current_user) for word in words]
-    return jsonify(data)
 
 @app.route('/user')
 @login_required
