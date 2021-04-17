@@ -59,7 +59,7 @@ class Users(db.Model, UserMixin):
     def gen_auth_token(self):
         payload = {
             'username': self.username,
-            'expired': time.time() + 3600 # timestapm now + 1h
+            'expired': time.time() + 3600
         }
         token = jwt.encode(payload, 'jajeczko', 'HS256')
         return token
@@ -71,7 +71,7 @@ class WordsHandler(db.Model):
 
     show_counter = db.Column(db.Integer, default=0)
     right_answers = db.Column(db.Integer, default=0)
-    progress = db.Column(db.Float, default=0)  # right guess / counter
+    progress = db.Column(db.Float, default=0)
 
     user = db.relationship('Users', backref='words', cascade='all, delete')
     word = db.relationship('EnglishWords', cascade='all, delete')
@@ -82,6 +82,3 @@ class WordsHandler(db.Model):
 
     def progress_eval(self):
         self.progress = self.right_answers / self.show_counter
-
-
-
