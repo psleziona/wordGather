@@ -27,7 +27,7 @@ def db_add_word(word, user):
 
 def send_auth_msg(token, user_mail):
     url = url_for('auth', token=token)
-    url = app.config['SERVER_NAME'] + url
+    url = 'https://' + app.config['SERVER_NAME'] + url
     msg = Message(
         subject='User confirm message',
         body=f'Here is your activate url if href doesn\'t work copy and past in browser url field {url}',
