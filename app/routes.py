@@ -54,7 +54,7 @@ def auth(token):
         user = data['username']
         timestamp = data['expired']
         current_time = datetime.datetime.now()
-        if datetime.datetime.fromtimestamp(timestamp) < current_time:
+        if datetime.datetime.fromtimestamp(timestamp) > current_time:
             user = Users.query.filter_by(username=user).first()
             user.confirm_user()
             db.session.commit()
