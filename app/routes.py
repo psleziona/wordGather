@@ -87,7 +87,7 @@ def word():
         word = request.form.get('word')
         word = EnglishWords.query.filter_by(word=word).first()
         wh_obj = WordsHandler.query.filter_by(
-            word_id=word_id, user_id=current_user.id).first()
+            word_id=word.id, user_id=current_user.id).first()
         db.session.delete(wh_obj)
         db.session.commit()
         return 'deleted'
