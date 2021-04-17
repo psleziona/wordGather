@@ -1,7 +1,7 @@
 import json
 from flask import make_response, url_for
 from flask_mail import Message
-from app import db, mail
+from app import db, mail, app
 from app.models import EnglishWords, Users, WordsHandler
 from app.dictionary_scrap import getTranslate
 
