@@ -43,6 +43,7 @@ def register():
     user = Users(username=username, password_hash=password_hash, email=email, api_key=api_key)
     db.session.add(user)
     db.session.commit()
+    auth_token = user.gen_auth_token()
     send_auth_msg(auth_token, email)
     return 'git', 200
 
