@@ -14,14 +14,17 @@ session_cookie = SecureCookieSessionInterface()
 @app.route('/login', methods=['POST'])
 def login():
     name = request.form.get('name')
+    password = request.form.get('password')
     user = Users.query.filter_by(username=name).first()
     res = make_response()
-    if user is not None:
+    if user is not None and user.check_password(password):
         login_user(user)
-    s = session_cookie.get_signing_serializer(app)
-    cookie = s.dumps(dict(session))
-    res.headers.add("Set-Cookie", f"session={cookie}; Secure; HttpOnly; SameSite=None; Path=/;")
-    return res
+        s = session_cookie.get_signing_serializer(app)
+        cookie = s.dumps(dict(session))
+        res.headers.add("Set-Cookie", f"session={cookie}; Secure; HttpOnly; SameSite=None; Path=/;")
+        return res, 200
+    return res, 404
+    
 
 @app.route('/logout')
 def logout():
