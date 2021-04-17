@@ -73,8 +73,8 @@ class WordsHandler(db.Model):
     right_answers = db.Column(db.Integer, default=0)
     progress = db.Column(db.Float, default=0)
 
-    user = db.relationship('Users', backref='words', cascade='all, delete')
-    word = db.relationship('EnglishWords', cascade='all, delete')
+    user = db.relationship('Users', backref='words', cascade='all, delete-orphans')
+    word = db.relationship('EnglishWords')
 
 
     def increment_counter(self):
