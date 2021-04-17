@@ -80,16 +80,15 @@ def auth(token):
 @login_required
 def word():
     if request.method == 'GET':
-        # losowy obiekt EnglishWord, x - WordsHandler obiekt
         word = random.choice([x.word for x in current_user.words])
-        pol_meaning = [x.word for x in word.pol_translate]  # lista znaczen
         word = word.word
         return {'word': word, 'meaning': pol_meaning}
     elif request.method == 'DELETE':
-        name = request.form.get('word')
-        word = WordsHandler.query.filter_by(
-            word_id=word, user_id=current_user.id).first()
-        db.session.delete(word)
+        word = request.form.get('word')
+        word = EnglishWords.query.filter_by(word=word).first()
+        wh_obj = WordsHandler.query.filter_by(
+            word_id=word_id, user_id=current_user.id).first()
+        db.session.delete(wh_obj)
         db.session.commit()
         return 'deleted'
 
