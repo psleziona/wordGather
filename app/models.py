@@ -1,9 +1,11 @@
-import jwt, time
+import jwt
+import time
 from string import ascii_letters
 from random import choices
 from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 @login.user_loader
 def load_user(id):
@@ -11,7 +13,8 @@ def load_user(id):
 
 
 word_mean = db.Table('word_translate',
-                     db.Column('eng_id', db.Integer, db.ForeignKey('english_words.id')),
+                     db.Column('eng_id', db.Integer,
+                               db.ForeignKey('english_words.id')),
                      db.Column('pol_id', db.Integer, db.ForeignKey('polish_words.id')))
 
 
@@ -34,6 +37,8 @@ class Users(db.Model, UserMixin):
     email = db.Column(db.String(40))
     api_key = db.Column(db.String(20))
     auth = db.Column(db.Boolean, default=False)
+    words = db.relationship(
+        'WordsHandler', backref='user', cascade='all, delete')
 
     @property
     def is_authenticated(self):
@@ -66,16 +71,15 @@ class Users(db.Model, UserMixin):
 
 
 class WordsHandler(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    word_id = db.Column(db.Integer, db.ForeignKey('english_words.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id'), primary_key=True)
+    word_id = db.Column(db.Integer, db.ForeignKey(
+        'english_words.id'), primary_key=True)
 
     show_counter = db.Column(db.Integer, default=0)
     right_answers = db.Column(db.Integer, default=0)
     progress = db.Column(db.Float, default=0)
-
-    user = db.relationship('Users', backref='words', cascade='all, delete')
     word = db.relationship('EnglishWords')
-
 
     def increment_counter(self):
         self.show_counter += 1
