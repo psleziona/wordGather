@@ -1,6 +1,6 @@
 import random, json, jwt, datetime
 from app import app, db
-from flask import request, jsonify, url_for, make_response, redirect
+from flask import request, jsonify, url_for, make_response, redirect, session
 from flask_login import login_user, current_user, login_required, logout_user
 from flask.sessions import SecureCookieSessionInterface
 from flask_cors import cross_origin
