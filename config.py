@@ -10,4 +10,4 @@ class Config:
     MAIL_PORT = 25
     MAIL_USERNAME = 'gocio@vpszdjecia.online'
     MAIL_PASSWORD = 'gocio12345'
-    SERVER_NAME = 'word-gather.herokuapp.com'
+    SERVER_NAME = 'https://word-gather.herokuapp.com/'
