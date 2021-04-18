@@ -76,21 +76,16 @@ def auth(token):
         return redirect('https://psleziona.github.io/404')
 
 
-@app.route('/word', methods=['GET', 'DELETE'])
+@app.route('/word', methods=['DELETE'])
 @login_required
 def word():
-    if request.method == 'GET':
-        word = random.choice([x.word for x in current_user.words])
-        word = word.word
-        return {'word': word, 'meaning': pol_meaning}
-    elif request.method == 'DELETE':
-        word = request.form.get('word')
-        word = EnglishWords.query.filter_by(word=word).first()
-        wh_obj = WordsHandler.query.filter_by(
-            word_id=word.id, user_id=current_user.id).first()
-        db.session.delete(wh_obj)
-        db.session.commit()
-        return 'deleted'
+    word = request.form.get('word')
+    word = EnglishWords.query.filter_by(word=word).first()
+    wh_obj = WordsHandler.query.filter_by(
+        word_id=word.id, user_id=current_user.id).first()
+    db.session.delete(wh_obj)
+    db.session.commit()
+    return 'deleted'
 
 
 @app.route('/<string:api_key>/word', methods=['POST'])
@@ -106,7 +101,7 @@ def add_word(api_key):
 @login_required
 def all_words():
     if request.method == 'GET':
-        data = [return_object_generator(x.word) for x in current_user.words]
+        data = [{'word': x.word.word, 'meanings': [y.word for y in x.word.pol_translate]} for x in current_user.words]
         return jsonify(data)
     elif request.method == 'POST':
         res = make_response()
@@ -118,7 +113,7 @@ def all_words():
         return res
 
 
-@app.route('/words/<int:count>')
+@app.route('/test-words/<int:count>')
 @login_required
 def words(count):
     words = [x.word for x in current_user.words]
