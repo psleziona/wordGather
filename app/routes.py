@@ -34,17 +34,18 @@ def login():
 def logout():
     logout_user()
     res = make_response()
-    return res
+    return res, 200
 
 
 @app.route('/register', methods=['POST'])
 def register():
+    res = make_response()
     username = request.form.get('username')
     email = request.form.get('e-mail')
     password = request.form.get('password')
     if Users.query.filter_by(username=username).first() != None \
             or Users.query.filter_by(email=email).first() != None:
-        return 'already in', 409
+        return res, 409
     password_hash = Users.gen_password(password)
     api_key = Users.gen_api_key()
     user = Users(username=username, password_hash=password_hash,
@@ -53,12 +54,13 @@ def register():
     if send_auth_msg(auth_token, email):
         db.session.add(user)
         db.session.commit()
-        return 'git', 200
-    return 'niegit', 500
+        return res, 200
+    return res, 500
 
 
 @app.route('/auth/<token>')
 def auth(token):
+    res = make_response()
     try:
         data = jwt.decode(token, 'jajeczko', 'HS256')
         user = data['username']
@@ -70,10 +72,9 @@ def auth(token):
             db.session.commit()
             return redirect('https://psleziona.github.io/login')
         else:
-            # link wygasl, wygerenruj nowy
-            return 'niegit', 404
+            return res, 404
     except:
-        return redirect('https://psleziona.github.io/404')
+        return res, 404
 
 
 @app.route('/word', methods=['DELETE'])
@@ -85,7 +86,8 @@ def word():
         word_id=word.id, user_id=current_user.id).first()
     db.session.delete(wh_obj)
     db.session.commit()
-    return 'deleted'
+    res = make_response()
+    return res, 200
 
 
 @app.route('/<string:api_key>/word', methods=['POST'])
